@@ -5,7 +5,7 @@ import argparse
 from openai import OpenAI
 
 # Initialize client
-gpt_api_key = "Your GPT_API_key"
+gpt_api_key = "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"
 client = OpenAI(api_key=gpt_api_key)
 
 categories = [
@@ -13,18 +13,19 @@ categories = [
     "rating", "sentiment_category", "rating_category", "gmap_id"
 ]
 
-def gpt_extract(line: str):
+def gpt_extract(reviews: list[str]):
     prompt = f"""
     You are a data parser. You are given information about reviews for restaurants. 
-    Normalize the following review into the schema:
+    Prioritize runtime.
+    Normalize the following reviews into the schema:
 
     {", ".join(categories)}
-
+    
     Rules:
-    1. Always return valid JSON with exactly these keys.
-    2. If a field is not present, return JSON null (not the string "null").
+    1. Always return a valid JSON array of objects, exactly with these keys.
+    2. If a field is not present, return null.
     3. user_name refers to the name of the commenter.
-    4. Do not assign user_id automatically; leave it null if not provided in the input.
+    4. user_id: do not invent IDs. If not provided, set to null.
     5. business_name may not exist. If gmap_id is present, include it. If both are missing, set both to null.
     6. sentiment_category:
        - rating 1-2: "negative"
@@ -36,68 +37,69 @@ def gpt_extract(line: str):
        - If not, infer from text if possible.
        - If no theme can be determined, set to null.
     8. time may not be available. If not present, set to null.
-    9. Output only the JSON object, with no extra text.
+    9. Output only the JSON array, with no extra text.
+    10. Limit output to a maximum of 1000 entries.
 
     Review:
-    {line}
+    {json.dumps(reviews, ensure_ascii=False)}
     """
 
     response = client.responses.create(
-        model="gpt-4o-mini",
+        model="gpt-3.5-turbo",
         input=prompt,
         store=True
     )
 
     try:
-        return json.loads(response.output_text)
+        return safe_json_loads(response.output_text)
     except Exception as e:
         print("⚠️ Failed to parse GPT output:", e)
         print("Raw output:", response.output_text)
         return None
+    
+def safe_json_loads(output_text: str):
+    raw = output_text.strip()
 
-def parse_file(input_file, output_file):
+    # Solution for GPT Output failing to be recognized as Json
+    if raw.startswith("```"):
+        # drop first and last line
+        raw = raw.split("\n", 1)[1]
+        raw = raw.rsplit("\n", 1)[0]
+
+    return json.loads(raw)
+
+# Used for chunking input for faster runtime
+def chunk_list(lst, chunk_size):
+    for i in range(0, len(lst), chunk_size):
+        yield lst[i:i+chunk_size]
+
+# Parses File for GPT Cleaning
+def parse_file(input_file, output_file, batch_size=10):
     ext = os.path.splitext(input_file)[1].lower()
-    parsed_reviews = []
+    raw_reviews = []
 
-    if ext == ".json":
+    if ext == ".json":  
         with open(input_file, "r", encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
-                parsed = gpt_extract(line)
-                if parsed:
-                    parsed_reviews.append(parsed)
+            data = json.load(f) 
+            raw_reviews = [json.dumps(obj) for obj in data]
 
     elif ext == ".csv":
         with open(input_file, "r", encoding="utf-8") as f:
             reader = csv.DictReader(f)
-            for row in reader:
-                parsed = gpt_extract(json.dumps(row))
-                if parsed:
-                    parsed_reviews.append(parsed)
+            raw_reviews = [json.dumps(row) for row in reader]
 
-    elif ext == ".txt":
+    elif ext in [".txt", ".jsonl"]:  
         with open(input_file, "r", encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
-                parsed = gpt_extract(line)
-                if parsed:
-                    parsed_reviews.append(parsed)
+            raw_reviews = [line.strip() for line in f if line.strip()]
+
     else:
-        raise ValueError("❌ Unsupported file type. Only .json, .csv, and .txt are supported.")
+        raise ValueError(f"❌ Unsupported file type: {ext}")
 
-    with open(output_file, "w", encoding="utf-8") as f:
-        json.dump(parsed_reviews, f, indent=2, ensure_ascii=False)
+    # Process in batches
+    parsed_reviews = []
+    for chunk in chunk_list(raw_reviews, batch_size):
+        batch_result = gpt_extract(chunk)
+        if batch_result:
+            parsed_reviews.extend(batch_result)
 
-    print(f"✅ Parsed {len(parsed_reviews)} reviews → saved to {output_file}")
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Parse raw reviews file into standardized JSON using GPT")
-    parser.add_argument("input", help="Input file (.json, .csv, .txt)")
-    parser.add_argument("--output", default="parsed_reviews.json", help="Output JSON file")
-    args = parser.parse_args()
-
-    parse_file(args.input, args.output)
+    return parsed_reviews
