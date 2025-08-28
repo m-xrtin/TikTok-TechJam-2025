@@ -5,7 +5,7 @@ import argparse
 from openai import OpenAI
 
 # Initialize client
-gpt_api_key = "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"
+gpt_api_key = "Your Key!"
 client = OpenAI(api_key=gpt_api_key)
 
 categories = [
