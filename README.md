@@ -1,8 +1,8 @@
-## TikTok-TechJam-2025
+# TikTok-TechJam-2025
 
 Topic: Filtering the Noise: ML for Trustworty Location Reviews
 
-# Introduction and Premise
+## Introduction and Premise 😎
 
 Online reviews often shape public perception of local businesses and locations, but their reliability is often compromised by spam, irrelevant content, and misleading rants. This project tackles the challenge of “Filtering the Noise” by building an ML-based system that evaluates the quality and relevancy of Google location reviews.
 
