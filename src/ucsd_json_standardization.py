@@ -1,16 +1,31 @@
 import jsonlines
 import random
+import os
 import json
 
-""" Handles the special UCSD JSONL format. 
+""" 
+Handles the special UCSD JSONL format. 
 Since this dataset already provides structured fields, we can skip the slower GPT-based standardization and perform faster operations instead. 
 This function randomly selects up to 1000 entries from the dataset and standardizes them into the project schema. 
-The sampled subset can then be used for testing or as input to generate pseudo-labels for training. """
+The sampled subset can then be used for testing or as input to generate pseudo-labels for training. 
+"""
 
 categories = [
     "user_id", "user_name", "business_name", "time", "text",
     "rating", "sentiment_category", "rating_category", "gmap_id"
 ]
+
+# UCSD Format check
+def is_ucsd_format(input_file):
+    with jsonlines.open(input_file) as reader:
+        data = [obj for obj in reader]
+
+    return (
+        isinstance(data, list)
+        and all(all(k in review for k in ("user_id", "text", "time", "gmap_id")) # Distinct Features
+                for review in data[:8])
+    )
+
 
 # Dealing with float rating (dissimilar to kaggle data)
 def get_rating_category(rating):
@@ -30,10 +45,10 @@ def get_rating_category(rating):
     return None
 
 def handle_ucsd_json(input_file: str, output_file: str, sample_size: int, seed: int):
-    random.seed(seed)
+        
     reservoir = []
     n = 0
-
+    # Sample 1000 for training purposes
     with jsonlines.open(input_file) as reader:
         for review in reader:
             n += 1
@@ -59,5 +74,6 @@ def handle_ucsd_json(input_file: str, output_file: str, sample_size: int, seed: 
 
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(standardized, f, ensure_ascii=False, indent=2)
+    return output_file
 
 
