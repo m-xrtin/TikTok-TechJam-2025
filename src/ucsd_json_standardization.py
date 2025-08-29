@@ -66,7 +66,7 @@ def handle_ucsd_json(input_file: str, output_file: str, sample_size: int, seed: 
         for field in categories:
             if field == "user_name":
                 entry[field] = review.get("name", None)
-            elif field == "rating_category":
+            elif field == "sentiment_category":
                 entry[field] = get_rating_category(review.get("rating"))
             else:
                 entry[field] = review.get(field, None)
