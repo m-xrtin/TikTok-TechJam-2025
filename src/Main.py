@@ -26,7 +26,7 @@ def main():
     
     success_message = "✅ File is successfully standardized!"
     
-    output_file = os.path.splitext(input_filename)[0] + "_standardized2.json"
+    output_file = os.path.splitext(input_filename)[0] + "_standardized.json"
     output_path = os.path.join(data_folder, output_file)
 
     # Special Case, JSON in UCSD Dataset format
