@@ -15,6 +15,7 @@ MODEL_FOLDER = os.path.join(PROJECT_ROOT, "model")
 OUTPUT_FOLDER = os.path.join(PROJECT_ROOT, "outputs")
 
 def run_inference(base_name: str):
+    
     input_path = os.path.join(DATA_FOLDER, f"{base_name}_final.csv")
     output_path = os.path.join(OUTPUT_FOLDER, f"{base_name}_results.csv")
 
@@ -59,7 +60,8 @@ def run_inference(base_name: str):
     # Keep only requested columns
     keep_cols = ["vader_category", "time", "rating", "text", "user_name", "probability", "decision", "verdict"]
     result_df = df[keep_cols]
-
+    
+    output_path = os.path.join(OUTPUT_FOLDER, f"{base_name}_results.csv")
     # Save
     result_df.to_csv(output_path, index=False)
     print(f"Inference complete. Results saved to {output_path}")
