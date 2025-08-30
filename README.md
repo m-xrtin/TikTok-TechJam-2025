@@ -25,7 +25,7 @@ Required python libraries (run pip install {library_name} in python terminal):
 - seaborn
 - nltk
 - tqdm
-- json
+- json/jsonl
 
 ## Pipeline
 
