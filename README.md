@@ -15,16 +15,17 @@ The end result is a scalable pipeline that can process raw review data, output c
 Open AI API key (We will provide a temporary one for judging purposes)
 Python version 3.13.7
 Required python libraries (run pip install {library_name} in python terminal):
-    numpy
-    pandas
-    scikit-learn
-    catboost
-    joblib
-    matplotlib
-    seaborn
-    nltk
-    tqdm
-    json
+
+- numpy
+- pandas
+- scikit-learn
+- catboost
+- joblib
+- matplotlib
+- seaborn
+- nltk
+- tqdm
+- json
 
 ## Pipeline
 
