@@ -1,7 +1,9 @@
 import os
 import pandas as pd
 
-DATA_FOLDER = "data"
+PROJECT_ROOT = os.path.dirname(os.path.dirname(__file__))
+DATA_FOLDER = os.path.join(PROJECT_ROOT, "data")
+
 
 """
 Preprocess a standardized CSV file from the data folder.
@@ -45,7 +47,7 @@ def preprocess_file(base_name: str):
 
     # Save processed file
     df.to_csv(output_path, index=False)
-    print(f"✅ Preprocessing complete. Saved to {output_path}")
+    print(f"Preprocessing complete. Saved to {output_path}")
     print("Final columns:", df.columns.tolist())
 
     return df, output_path

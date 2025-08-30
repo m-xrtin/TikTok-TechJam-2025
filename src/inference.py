@@ -3,10 +3,16 @@ import numpy as np
 import pandas as pd
 import joblib
 from catboost import CatBoostClassifier, Pool
+import os
 
-DATA_FOLDER = "data"
-MODEL_FOLDER = "model"
-OUTPUT_FOLDER = "outputs"
+try:
+    PROJECT_ROOT = os.path.dirname(os.path.dirname(__file__))  # script mode
+except NameError:
+    PROJECT_ROOT = os.path.abspath("..")  # notebook mode
+
+DATA_FOLDER = os.path.join(PROJECT_ROOT, "data")
+MODEL_FOLDER = os.path.join(PROJECT_ROOT, "model")
+OUTPUT_FOLDER = os.path.join(PROJECT_ROOT, "outputs")
 
 def run_inference(base_name: str):
     input_path = os.path.join(DATA_FOLDER, f"{base_name}_final.csv")
@@ -38,7 +44,7 @@ def run_inference(base_name: str):
             models.append(m)
 
     if not models:
-        raise RuntimeError("❌ No fold models found in model folder!")
+        raise RuntimeError("No fold models found in model folder!")
 
     # Ensemble predictions
     fold_predictions = [m.predict_proba(pool)[:, 1] for m in models]
@@ -56,11 +62,12 @@ def run_inference(base_name: str):
 
     # Save
     result_df.to_csv(output_path, index=False)
-    print(f"✅ Inference complete. Results saved to {output_path}")
+    print(f"Inference complete. Results saved to {output_path}")
 
     # Quick summary
     n_spam = (result_df["decision"] == 1).sum()
     n_ham = (result_df["decision"] == 0).sum()
     print(f"Summary: {n_spam} likely spam, {n_ham} likely ham out of {len(result_df)} reviews.")
+
 
     return result_df, output_path

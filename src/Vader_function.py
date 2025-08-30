@@ -3,7 +3,8 @@ import pandas as pd
 import nltk
 from nltk.sentiment import SentimentIntensityAnalyzer
 
-DATA_FOLDER = "data"
+PROJECT_ROOT = os.path.dirname(os.path.dirname(__file__))
+DATA_FOLDER = os.path.join(PROJECT_ROOT, "data")
 
 # Download lexicon quietly once
 nltk.download('vader_lexicon', quiet=True)
@@ -47,6 +48,6 @@ def VADER_Sentiment_Score(base_name: str, text_col="text"):
 
     # Save
     df.to_csv(output_path, index=False)
-    print(f"✅ VADER sentiment scoring complete. Saved to {output_path}")
+    print(f"VADER sentiment scoring complete. Saved to {output_path}")
 
     return df, output_path

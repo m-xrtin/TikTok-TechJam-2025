@@ -51,7 +51,7 @@ def gpt_label(reviews_batch):
             output_text = output_text.split("\n", 1)[1].rsplit("\n", 1)[0]
         return json.loads(output_text)
     except Exception as e:
-        print("⚠️ Error parsing GPT output:", e)
+        print("Error parsing GPT output:", e)
         print("Raw output:", response.output_text)
         return []
 

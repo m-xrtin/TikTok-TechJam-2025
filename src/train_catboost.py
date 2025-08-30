@@ -138,4 +138,4 @@ train_results["probability_spam"] = final_probs
 train_results["predicted_spam_label"] = final_preds
 
 train_results.to_csv(os.path.join(DATA_FOLDER, "train_predictions.csv"), index=False)
-print(f"✅ Ensemble predictions saved to {os.path.join(DATA_FOLDER, 'train_predictions.csv')}")
+print(f"Ensemble predictions saved to {os.path.join(DATA_FOLDER, 'train_predictions.csv')}")

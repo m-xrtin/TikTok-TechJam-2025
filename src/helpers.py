@@ -14,13 +14,13 @@ def validate_file(input_file, supported_formats=None):
         supported_formats = ['.json', '.txt', '.csv']
 
     if not os.path.isfile(input_file):
-        print(f"❌ Error: File '{input_file}' does not exist in 'data' folder.")
+        print(f"Error: File '{input_file}' does not exist in 'data' folder.")
         sys.exit(1)
 
     # Check extension
     ext = os.path.splitext(input_file)[1].lower()
     if ext not in supported_formats:
-        print("⚠️ Warning: This file format is not officially supported "
+        print("Warning: This file format is not officially supported "
               f"(works best with {', '.join(supported_formats)}).\n")
         answer = input("Are you sure you want to proceed? (yes/no): ").strip().lower()
         if answer != "yes":
@@ -53,7 +53,7 @@ def json_to_csv_from_data(json_path, csv_path=None):
         data = json.load(f)
 
     if not isinstance(data, list):
-        raise ValueError("❌ JSON must be a list of dicts")
+        raise ValueError("JSON must be a list of dicts")
 
     # Collect keys across all dicts
     all_keys = set()
@@ -67,5 +67,5 @@ def json_to_csv_from_data(json_path, csv_path=None):
         writer.writeheader()
         writer.writerows(data)
 
-    print(f"✅ Converted {len(data)} rows into {csv_path}")
+    print(f"Converted {len(data)} rows into {csv_path}")
     return csv_path
