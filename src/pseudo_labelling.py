@@ -3,7 +3,7 @@ import json
 from openai import OpenAI
 import time
 
-client = OpenAI(api_key="ecret")
+client = OpenAI(api_key="secret!!!")
 
 # Directories
 root = os.path.dirname(os.path.dirname(__file__))
