@@ -4,8 +4,8 @@ import os
 
 # Paths
 training_folder = os.path.join(os.path.dirname(os.path.dirname(__file__)), "training_data")
-json_path = os.path.join(training_folder, "combined.json")
-csv_path = os.path.join(training_folder, "combined.csv")
+json_path = os.path.join(training_folder, "review-Kaggle_meta.json")
+csv_path = os.path.join(training_folder, "2.csv")
 
 # Load JSON
 with open(json_path, "r", encoding="utf-8") as f:
@@ -29,4 +29,3 @@ with open(csv_path, "w", newline="", encoding="utf-8") as f:
     writer.writerows(data)
 
 print(f"✅ Converted {len(data)} rows into {csv_path}")
-

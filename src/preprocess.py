@@ -1,29 +1,52 @@
+import os
 import pandas as pd
 
-df = pd.read_csv("combined.csv")
+DATA_FOLDER = "data"
 
-categorical_cols = ["sentiment_category", "gmap_id", "user_name", "business_name", "user_id"]
-numeric_cols = ["rating", "time"]
-text_cols = ["text"]
+"""
+Preprocess a standardized CSV file from the data folder.
+    
+Args:
+    base_name (str): The base filename (without .csv extension).
+    Example: "combined" reads "data/combined.csv"
+    
+Returns:
+df (pd.DataFrame): Preprocessed DataFrame
+output_path (str): Path to the saved preprocessed CSV
+"""
+def preprocess_file(base_name: str):
 
-# Drop only rating_category (too sparse)
-df = df.drop(columns=["rating_category"], errors="ignore")
+    input_path = os.path.join(DATA_FOLDER, f"{base_name}.csv")
+    output_path = os.path.join(DATA_FOLDER, f"{base_name}_preprocessed.csv")
 
-# Fix categoricals
-for col in categorical_cols:
-    if col in df.columns:
-        df[col] = df[col].fillna("unknown").astype(str)
+    df = pd.read_csv(input_path)
 
-# Fix numerics
-for col in numeric_cols:
-    if col in df.columns:
-        df[col] = pd.to_numeric(df[col], errors="coerce").fillna(-999)
+    categorical_cols = ["sentiment_category", "gmap_id", "user_name", "business_name", "user_id"]
+    numeric_cols = ["rating", "time"]
+    text_cols = ["text"]
 
-# Fix text
-for col in text_cols:
-    if col in df.columns:
-        df[col] = df[col].fillna("unknown").astype(str)
+    # Drop sparse column
+    df = df.drop(columns=["rating_category"], errors="ignore")
 
-df.to_csv("all_data.csv", index=False)
-print("✅ Preprocessing complete. Saved to all_data.csv")
-print("Final columns:", df.columns.tolist())
+    # Fix categoricals
+    for col in categorical_cols:
+        if col in df.columns:
+            df[col] = df[col].fillna("unknown").astype(str)
+
+    # Fix numerics
+    for col in numeric_cols:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce").fillna(-999)
+
+    # Fix text
+    for col in text_cols:
+        if col in df.columns:
+            df[col] = df[col].fillna("unknown").astype(str)
+
+    # Save processed file
+    df.to_csv(output_path, index=False)
+    print(f"✅ Preprocessing complete. Saved to {output_path}")
+    print("Final columns:", df.columns.tolist())
+
+    return df, output_path
+
